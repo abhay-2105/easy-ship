@@ -29,6 +29,13 @@
             {
               "client_id": "795756352671-muano33ouo13fmkvrnpohhqv930kilt9.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "795756352671-lmbt8u7k2vjj7v6qdsnhg0e7b2e01pc8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.shipeasy"
+              }
             }
           ]
         }
