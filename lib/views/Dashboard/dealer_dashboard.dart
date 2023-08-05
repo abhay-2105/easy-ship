@@ -119,6 +119,7 @@ class _DealerDashBoardState extends State<DealerDashBoard> {
                                       itemBuilder: (context, index) {
                                         final data = filterList[index];
                                         return DriverTicket(
+                                          dealerDetails: dealerDetails,
                                           capacity: data['truckCapacity'],
                                           exp: data['drivingExp'],
                                           transporterName:
@@ -160,6 +161,7 @@ class _DealerDashBoardState extends State<DealerDashBoard> {
 }
 
 class DriverTicket extends StatelessWidget {
+  final dynamic dealerDetails;
   final String fromState;
   final String toState;
   final String fromCity;
@@ -182,10 +184,13 @@ class DriverTicket extends StatelessWidget {
     required this.toCity,
     required this.docId,
     required this.requests,
+    required this.dealerDetails,
   });
 
   @override
   Widget build(BuildContext context) {
+    print(dealerDetails['drivers']);
+    print(docId);
     return Stack(
       children: [
         Container(
@@ -277,7 +282,9 @@ class DriverTicket extends StatelessWidget {
           bottom: 0,
           right: 0,
           child: Material(
-            color: ColorManager.orange.withOpacity(0.8),
+            color: (dealerDetails['drivers'] as List).contains(docId)
+                ? ColorManager.blue
+                : ColorManager.orange.withOpacity(0.8),
             borderRadius: const BorderRadius.only(
               bottomRight: Radius.circular(10),
               topLeft: Radius.circular(10),
@@ -287,33 +294,39 @@ class DriverTicket extends StatelessWidget {
                 bottomRight: Radius.circular(10),
                 topLeft: Radius.circular(10),
               ),
-              onTap: () async {
-                if (requests.contains(FirebaseAuth.instance.currentUser!.uid)) {
-                  await FirebaseFirestore.instance
-                      .collection('Users')
-                      .doc(docId)
-                      .update({
-                    'requests': FieldValue.arrayRemove(
-                        [FirebaseAuth.instance.currentUser!.uid])
-                  });
-                } else {
-                  await FirebaseFirestore.instance
-                      .collection('Users')
-                      .doc(docId)
-                      .update({
-                    'requests': FieldValue.arrayUnion(
-                        [FirebaseAuth.instance.currentUser!.uid])
-                  });
-                }
-              },
+              onTap: (dealerDetails['drivers'] as List).contains(docId)
+                  ? null
+                  : () async {
+                      if (requests
+                          .contains(FirebaseAuth.instance.currentUser!.uid)) {
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(docId)
+                            .update({
+                          'requests': FieldValue.arrayRemove(
+                              [FirebaseAuth.instance.currentUser!.uid])
+                        });
+                      } else {
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(docId)
+                            .update({
+                          'requests': FieldValue.arrayUnion(
+                              [FirebaseAuth.instance.currentUser!.uid])
+                        });
+                      }
+                    },
               child: Container(
                 height: 55,
                 width: 120,
                 alignment: Alignment.center,
                 child: Text(
-                  !requests.contains(FirebaseAuth.instance.currentUser!.uid)
-                      ? 'Request'
-                      : 'Undo',
+                  (dealerDetails['drivers'] as List).contains(docId)
+                      ? "Accepted"
+                      : !requests
+                              .contains(FirebaseAuth.instance.currentUser!.uid)
+                          ? 'Request'
+                          : 'Undo',
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
